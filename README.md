@@ -13,6 +13,20 @@ This file documents all significant changes to the **Rozpusta Game Library** app
 Versioning follows the [Semantic Versioning](https://semver.org/).
 
 
+## [0.3.4] - 2026-04-04
+
+### Fixed
+- App crashed on launch for all fresh installs of v0.3.3 — compiled integration files were missing from the installer package
+- Logging in to F95Zone had no effect — cookies were saved to a read-only location inside the app package and lost on restart
+- Pasting an F95Zone link for an unrecognized game showed no feedback if the fetch failed — now a clear error message appears at the bottom of the screen
+- "Check for updates" button showed no feedback on failure — same fix applied
+- Confirming a game match showed no feedback on failure — same fix applied
+- Folder name variants discovered by users (e.g. a different version folder) were not being contributed back to the community database
+- Known folder name variants were not included when pushing DB updates to GitHub
+
+
+---
+
 ## [0.3.3] - 2026-03-27
 
 ### Added
