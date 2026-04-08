@@ -550,31 +550,57 @@
     const total  = slides.length;
     let current  = 0;
     let timer    = null;
+    let jumping  = false;
+
+    // Clone first and last for seamless looping
+    const firstClone = slides[0].cloneNode(true);
+    const lastClone  = slides[total - 1].cloneNode(true);
+    track.appendChild(firstClone);
+    track.insertBefore(lastClone, slides[0]);
+
+    let pos = 1;
+    track.style.transition = 'none';
+    track.style.transform  = `translateX(-${pos * 100}%)`;
 
     // Build dots
-    slides.forEach((_, i) => {
+    for (let i = 0; i < total; i++) {
       const d = document.createElement('button');
       d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
       d.setAttribute('aria-label', 'Slide ' + (i + 1));
-      d.addEventListener('click', () => go(i));
+      d.addEventListener('click', () => { resetTimer(); goReal(i); });
       dotsEl.appendChild(d);
-    });
+    }
 
-    function go(idx) {
-      current = (idx + total) % total;
-      track.style.transform = `translateX(-${current * 100}%)`;
+    function updateDots() {
       dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) =>
         d.classList.toggle('active', i === current)
       );
     }
 
-    function next() { go(current + 1); }
-    function prev() { go(current - 1); }
+    function moveTo(idx, animate) {
+      track.style.transition = animate ? 'transform 0.45s cubic-bezier(0.4,0,0.2,1)' : 'none';
+      track.style.transform  = `translateX(-${idx * 100}%)`;
+    }
+
+    function goReal(idx) {
+      current = (idx + total) % total;
+      pos = current + 1;
+      moveTo(pos, true);
+      updateDots();
+    }
+
+    function next() { pos++; moveTo(pos, true); current = (current + 1) % total; updateDots(); }
+    function prev() { pos--; moveTo(pos, true); current = (current - 1 + total) % total; updateDots(); }
+
+    track.addEventListener('transitionend', () => {
+      if (jumping) return;
+      if (pos === total + 1) { jumping = true; pos = 1; moveTo(pos, false); jumping = false; }
+      if (pos === 0)         { jumping = true; pos = total; moveTo(pos, false); jumping = false; }
+    });
 
     document.getElementById('carouselNext').addEventListener('click', () => { resetTimer(); next(); });
     document.getElementById('carouselPrev').addEventListener('click', () => { resetTimer(); prev(); });
 
-    // Swipe support
     let touchStartX = 0;
     const el = document.getElementById('carousel');
     el.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
@@ -583,7 +609,6 @@
       if (Math.abs(dx) > 40) { resetTimer(); dx < 0 ? next() : prev(); }
     });
 
-    // Pause on hover
     el.addEventListener('mouseenter', () => clearInterval(timer));
     el.addEventListener('mouseleave', () => startTimer());
 
