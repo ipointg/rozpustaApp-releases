@@ -230,6 +230,42 @@
       margin: 0 auto;
     }
 
+    /* ── SCREENSHOTS ── */
+    .screenshots-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .screenshots-scroll {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 1rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    .screenshots-scroll::-webkit-scrollbar { height: 5px; }
+    .screenshots-scroll::-webkit-scrollbar-track { background: transparent; }
+    .screenshots-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    .screenshot-item {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      width: min(760px, 85vw);
+    }
+    .screenshot-item img {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: block;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    }
+    .screenshot-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.6rem;
+      padding-left: 0.25rem;
+    }
+
     /* ── CTA ── */
     .cta {
       text-align: center;
@@ -372,6 +408,32 @@
       <div class="feature-icon">🔍</div>
       <h3>Search & filters</h3>
       <p>Search by title, sort A→Z, filter by status or updates. Settings persist between sessions.</p>
+    </div>
+  </div>
+</section>
+
+<hr />
+
+<!-- SCREENSHOTS -->
+<section class="screenshots-section" id="screenshots">
+  <p class="section-label">Screenshots</p>
+  <h2>See it in action</h2>
+  <div class="screenshots-scroll">
+    <div class="screenshot-item">
+      <img src="screenshots/1-library.png" alt="Library view with game banners" loading="lazy" />
+      <p class="screenshot-caption">Library — game list with covers and status badges</p>
+    </div>
+    <div class="screenshot-item">
+      <img src="screenshots/2-game-detail.png" alt="Game detail page" loading="lazy" />
+      <p class="screenshot-caption">Game detail — metadata, tags, version and description pulled from F95Zone</p>
+    </div>
+    <div class="screenshot-item">
+      <img src="screenshots/5-filter-updates.png" alt="Updates filter showing available update" loading="lazy" />
+      <p class="screenshot-caption">Updates filter — shows which games have a newer version on F95Zone</p>
+    </div>
+    <div class="screenshot-item">
+      <img src="screenshots/4-filter-completed.png" alt="Completed games filter" loading="lazy" />
+      <p class="screenshot-caption">Completed filter — browse games you've finished</p>
     </div>
   </div>
 </section>
