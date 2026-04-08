@@ -612,9 +612,14 @@
     });
 
     el.addEventListener('mouseenter', () => clearInterval(timer));
-    el.addEventListener('mouseleave', () => startTimer());
+    el.addEventListener('mouseleave', () => { if (!document.hidden) startTimer(); });
 
-    function startTimer() { timer = setInterval(next, 4000); }
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) clearInterval(timer);
+      else startTimer();
+    });
+
+    function startTimer() { clearInterval(timer); timer = setInterval(next, 4000); }
     function resetTimer() { clearInterval(timer); startTimer(); }
 
     startTimer();
