@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rose[] — Ren'Py Game Library Manager</title>
+  <meta name="description" content="A desktop app to manage, track, and organize your local Ren'Py game collection. Metadata, banners, version tracking and more." />
+  <meta property="og:title" content="Rose[] — Ren'Py Game Library Manager" />
+  <meta property="og:description" content="Manage your local Ren'Py game collection with metadata, banners, version tracking and auto-updates." />
+  <meta property="og:type" content="website" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #12101d;
+      --surface:  #1c1830;
+      --card:     #231f37;
+      --border:   #332b4d;
+      --primary:  #7c5ce7;
+      --primary-h:#9370f5;
+      --text:     #e8e0ff;
+      --muted:    #8a7daa;
+      --success:  #4ade80;
+      --warning:  #fbbf24;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(18, 16, 29, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--primary-h); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .btn-nav {
+      background: var(--primary);
+      color: #fff !important;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem !important;
+      transition: background 0.15s !important;
+    }
+    .btn-nav:hover { background: var(--primary-h) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem 5rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.04em;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 7vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 .brackets { color: var(--primary-h); }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: #fff;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: var(--primary-h); transform: translateY(-1px); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--primary); background: var(--card); }
+
+    .version-hint {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .version-hint a { color: var(--primary-h); text-decoration: none; }
+    .version-hint a:hover { text-decoration: underline; }
+
+    /* ── FEATURES ── */
+    .section {
+      padding: 5rem 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--primary-h);
+      margin-bottom: 0.75rem;
+    }
+    .section h2 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 3rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      transition: border-color 0.15s;
+    }
+    .feature-card:hover { border-color: var(--primary); }
+    .feature-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
+    .feature-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.55; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── CTA ── */
+    .cta {
+      text-align: center;
+      padding: 5rem 2rem 6rem;
+    }
+    .cta h2 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .cta p { color: var(--muted); margin-bottom: 2rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    footer p { font-size: 0.8rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 1.25rem; }
+    .footer-links a {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── PLATFORM BADGE ── */
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Rose<span>[]</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="https://discord.gg/6BraBDXHD7" target="_blank">Discord</a>
+    <a href="https://www.patreon.com/c/voidroseplatform" target="_blank">Patreon</a>
+    <a href="#download" class="btn-nav">Download</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Windows · Free · Open Beta</div>
+  <h1>Rose<span class="brackets">[]</span></h1>
+  <p>
+    A desktop library manager for your local Ren'Py game collection.
+    Covers, metadata, version tracking — all in one place.
+  </p>
+  <div class="hero-actions" id="download">
+    <a id="downloadBtn" href="https://github.com/ipointg/rozpustaApp-releases/releases/latest" class="btn-primary">
+      ↓ Download for Windows
+    </a>
+    <a href="https://github.com/ipointg/rozpustaApp-releases/releases" class="btn-secondary">
+      Release notes
+    </a>
+  </div>
+  <p class="version-hint" id="versionHint">Loading latest version…</p>
+  <div class="platform-badge">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+    Windows 10 / 11
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <p class="section-label">What it does</p>
+  <h2>Everything your library needs</h2>
+  <div class="features-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon">🖼</div>
+      <h3>Rich metadata</h3>
+      <p>Pulls cover art, description, tags, version and release date from F95Zone automatically.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📂</div>
+      <h3>Multiple folders</h3>
+      <p>Manage several game directories at once and switch between them instantly.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <h3>Version tracking</h3>
+      <p>Knows which games have updates available and shows a badge right on the cover.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🏷</div>
+      <h3>Status badges</h3>
+      <p>Completed, Abandoned, On Hold — displayed directly on banners so you always know where a game stands.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🔄</div>
+      <h3>Background sync</h3>
+      <p>Silently refreshes metadata every 30 minutes from a community-maintained database.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">⬆️</div>
+      <h3>Auto-updates</h3>
+      <p>The app updates itself in the background. One click to restart and you're on the latest version.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>Community database</h3>
+      <p>Backed by a shared game DB on GitHub that grows as users contribute — no central server needed.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Search & filters</h3>
+      <p>Search by title, sort A→Z, filter by status or updates available. Settings persist between sessions.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CTA -->
+<section class="cta">
+  <h2>Free to download. Always.</h2>
+  <p>Rose[] is free and always will be. Support development on Patreon if you'd like to help.</p>
+  <div class="hero-actions">
+    <a id="downloadBtn2" href="https://github.com/ipointg/rozpustaApp-releases/releases/latest" class="btn-primary">
+      ↓ Download for Windows
+    </a>
+    <a href="https://www.patreon.com/c/voidroseplatform" target="_blank" class="btn-secondary">Support on Patreon</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Rose[] · Made by Hidden Folder Games</p>
+  <div class="footer-links">
+    <a href="https://discord.gg/6BraBDXHD7" target="_blank">Discord</a>
+    <a href="https://www.patreon.com/c/voidroseplatform" target="_blank">Patreon</a>
+    <a href="https://github.com/ipointg/rozpustaApp-releases/releases" target="_blank">Releases</a>
+  </div>
+</footer>
+
+<script>
+  // Fetch latest release and update download button + version hint
+  fetch('https://api.github.com/repos/ipointg/rozpustaApp-releases/releases/latest', {
+    headers: { 'Accept': 'application/vnd.github.v3+json' }
+  })
+  .then(r => r.json())
+  .then(release => {
+    const tag = release.tag_name;
+    const exe = release.assets?.find(a => a.name.endsWith('.exe'));
+    const date = release.published_at
+      ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '';
+
+    if (exe) {
+      document.getElementById('downloadBtn').href = exe.browser_download_url;
+      document.getElementById('downloadBtn2').href = exe.browser_download_url;
+    }
+
+    document.getElementById('versionHint').innerHTML =
+      `Latest: <a href="https://github.com/ipointg/rozpustaApp-releases/releases/tag/${tag}" target="_blank">${tag}</a>`
+      + (date ? ` · released ${date}` : '');
+  })
+  .catch(() => {
+    document.getElementById('versionHint').textContent = '';
+  });
+</script>
+
+</body>
+</html>
