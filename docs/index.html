@@ -230,41 +230,81 @@
       margin: 0 auto;
     }
 
-    /* ── SCREENSHOTS ── */
+    /* ── SCREENSHOTS / CAROUSEL ── */
     .screenshots-section {
       padding: 5rem 2rem;
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
     }
-    .screenshots-scroll {
-      display: flex;
-      gap: 1rem;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 1rem;
-      -webkit-overflow-scrolling: touch;
-    }
-    .screenshots-scroll::-webkit-scrollbar { height: 5px; }
-    .screenshots-scroll::-webkit-scrollbar-track { background: transparent; }
-    .screenshots-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
-    .screenshot-item {
-      flex: 0 0 auto;
-      scroll-snap-align: start;
-      width: min(760px, 85vw);
-    }
-    .screenshot-item img {
-      width: 100%;
-      border-radius: 10px;
+    .carousel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
       border: 1px solid var(--border);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      user-select: none;
+    }
+    .carousel-track {
+      display: flex;
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+    }
+    .carousel-slide {
+      flex: 0 0 100%;
+      position: relative;
+    }
+    .carousel-slide img {
+      width: 100%;
       display: block;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
     }
-    .screenshot-caption {
-      font-size: 0.78rem;
+    .carousel-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0.6rem 1rem;
+      background: linear-gradient(transparent, rgba(20,15,40,0.85));
+      font-size: 0.8rem;
       color: var(--muted);
-      margin-top: 0.6rem;
-      padding-left: 0.25rem;
     }
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(57,47,90,0.75);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: background 0.15s;
+      z-index: 10;
+      backdrop-filter: blur(6px);
+    }
+    .carousel-btn:hover { background: rgba(76,92,151,0.85); }
+    .carousel-btn.prev { left: 10px; }
+    .carousel-btn.next { right: 10px; }
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 0.9rem;
+    }
+    .carousel-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      padding: 0;
+    }
+    .carousel-dot.active { background: var(--primary); transform: scale(1.3); }
 
     /* ── CTA ── */
     .cta {
@@ -424,24 +464,29 @@
 <section class="screenshots-section" id="screenshots">
   <p class="section-label">Screenshots</p>
   <h2>See it in action</h2>
-  <div class="screenshots-scroll">
-    <div class="screenshot-item">
-      <img src="screenshots/1-library.png" alt="Library view with game banners" loading="lazy" />
-      <p class="screenshot-caption">Library — game list with covers and status badges</p>
+  <div class="carousel" id="carousel">
+    <div class="carousel-track" id="carouselTrack">
+      <div class="carousel-slide">
+        <img src="screenshots/1-library.png" alt="Library view with game banners" loading="lazy" />
+        <div class="carousel-caption">Library — game list with covers and status badges</div>
+      </div>
+      <div class="carousel-slide">
+        <img src="screenshots/2-game-detail.png" alt="Game detail page" loading="lazy" />
+        <div class="carousel-caption">Game detail — metadata, tags, version and description from F95Zone</div>
+      </div>
+      <div class="carousel-slide">
+        <img src="screenshots/5-filter-updates.png" alt="Updates filter" loading="lazy" />
+        <div class="carousel-caption">Updates filter — see which games have a newer version available</div>
+      </div>
+      <div class="carousel-slide">
+        <img src="screenshots/4-filter-completed.png" alt="Completed games filter" loading="lazy" />
+        <div class="carousel-caption">Completed filter — browse games you've finished</div>
+      </div>
     </div>
-    <div class="screenshot-item">
-      <img src="screenshots/2-game-detail.png" alt="Game detail page" loading="lazy" />
-      <p class="screenshot-caption">Game detail — metadata, tags, version and description pulled from F95Zone</p>
-    </div>
-    <div class="screenshot-item">
-      <img src="screenshots/5-filter-updates.png" alt="Updates filter showing available update" loading="lazy" />
-      <p class="screenshot-caption">Updates filter — shows which games have a newer version on F95Zone</p>
-    </div>
-    <div class="screenshot-item">
-      <img src="screenshots/4-filter-completed.png" alt="Completed games filter" loading="lazy" />
-      <p class="screenshot-caption">Completed filter — browse games you've finished</p>
-    </div>
+    <button class="carousel-btn prev" id="carouselPrev">&#8249;</button>
+    <button class="carousel-btn next" id="carouselNext">&#8250;</button>
   </div>
+  <div class="carousel-dots" id="carouselDots"></div>
 </section>
 
 <hr />
@@ -495,6 +540,59 @@
     </div>
   </footer>
 </div>
+
+<script>
+  // ── Carousel ──
+  (function() {
+    const track  = document.getElementById('carouselTrack');
+    const dotsEl = document.getElementById('carouselDots');
+    const slides = track.querySelectorAll('.carousel-slide');
+    const total  = slides.length;
+    let current  = 0;
+    let timer    = null;
+
+    // Build dots
+    slides.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('aria-label', 'Slide ' + (i + 1));
+      d.addEventListener('click', () => go(i));
+      dotsEl.appendChild(d);
+    });
+
+    function go(idx) {
+      current = (idx + total) % total;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) =>
+        d.classList.toggle('active', i === current)
+      );
+    }
+
+    function next() { go(current + 1); }
+    function prev() { go(current - 1); }
+
+    document.getElementById('carouselNext').addEventListener('click', () => { resetTimer(); next(); });
+    document.getElementById('carouselPrev').addEventListener('click', () => { resetTimer(); prev(); });
+
+    // Swipe support
+    let touchStartX = 0;
+    const el = document.getElementById('carousel');
+    el.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    el.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) { resetTimer(); dx < 0 ? next() : prev(); }
+    });
+
+    // Pause on hover
+    el.addEventListener('mouseenter', () => clearInterval(timer));
+    el.addEventListener('mouseleave', () => startTimer());
+
+    function startTimer() { timer = setInterval(next, 4000); }
+    function resetTimer() { clearInterval(timer); startTimer(); }
+
+    startTimer();
+  })();
+</script>
 
 <script>
   fetch('https://api.github.com/repos/ipointg/rozpustaApp-releases/releases/latest', {
