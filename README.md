@@ -13,7 +13,20 @@ This file documents all significant changes to the **Rozpusta Game Library** app
 Versioning follows the [Semantic Versioning](https://semver.org/).
 
 
+## [0.3.5] - 2026-05-05
+
+### Fixed
+- "New games detected" notification now only processes freshly discovered games instead of re-syncing all old unrecognized games — clicking the notification is much faster and won't spam sync requests
+- Version candidate detection now works correctly with PascalCase folder names — folders like "TheBigStepSeason2-0.1-pc" are now properly matched to "The Big Step"
+- Empty badge no longer appears in the top-left corner of game banners after confirming a new game or version
+- After confirming a new game or version match, the game is now automatically selected and scrolled into view — no need to search for it in the list
+- Folder name variants discovered during version confirmation are now properly saved and contributed to the community database
+
+
+---
+
 ## [0.3.4] - 2026-04-04
+
 
 ### Fixed
 - App crashed on launch for all fresh installs of v0.3.3 — compiled integration files were missing from the installer package
