@@ -13,6 +13,16 @@ This file documents all significant changes to the **Rozpusta Game Library** app
 Versioning follows the [Semantic Versioning](https://semver.org/).
 
 
+## [0.3.6] - 2026-05-10
+
+### Fixed
+- Update indicators (↑ badge) were not showing for any games on app startup — the `versionInstalled` field was never set during initial game scan, causing update detection to always return false
+- Existing users' game libraries will be automatically migrated on first launch after this update to populate the missing `versionInstalled` field
+- Games with undetectable versions (no version in folder name, exe, version.txt, or options.rpy) now use "0.0.0" as fallback to ensure update indicators still appear when new versions are released
+
+
+---
+
 ## [0.3.5] - 2026-05-05
 
 ### Fixed
