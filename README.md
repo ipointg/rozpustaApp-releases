@@ -13,6 +13,17 @@ This file documents all significant changes to the **Rozpusta Game Library** app
 Versioning follows the [Semantic Versioning](https://semver.org/).
 
 
+## [0.3.7] - 2026-05-11
+
+### Fixed
+- "I have updated" button had no effect — the saved `versionInstalled` was being overwritten by folder extraction on every game load, preventing manual version updates from persisting
+- Closing the update notification (✖) in one game hid it for all other games until restart — now tracks dismissal per-game instead of using a single global flag
+- "Final" version was not treated as equivalent to "1.0" in version comparisons — games marked "Final" now correctly match against version "1.0" from F95Zone (and vice versa)
+- Games with recent updates (< 120 days) incorrectly showed "Abandoned" label — status resolution now prioritizes release date over F95Zone's status tag when there's recent activity
+
+
+---
+
 ## [0.3.6] - 2026-05-10
 
 ### Fixed
